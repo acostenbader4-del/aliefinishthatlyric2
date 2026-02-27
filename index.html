@@ -1028,18 +1028,62 @@ function makeCode() {
   return Array.from({length:4}, () => c[Math.floor(Math.random()*c.length)]).join('');
 }
 
+// 0-1 similarity between two strings using bigrams
+function strSimilarity(a, b) {
+  const na = a.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const nb = b.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (na === nb) return 1;
+  if (!na.length || !nb.length) return 0;
+  if (na.startsWith(nb) || nb.startsWith(na)) return 0.9;
+  const bigrams = s => new Set([...Array(s.length - 1)].map((_, i) => s.slice(i, i + 2)));
+  const ba = bigrams(na), bb = bigrams(nb);
+  const intersection = [...ba].filter(x => bb.has(x)).length;
+  return (2 * intersection) / (ba.size + bb.size);
+}
+
+// True if candidate is too similar to correct or any already-chosen wrong answer
+function tooSimilar(candidate, correct, chosenWrongs, threshold = 0.65) {
+  if (strSimilarity(candidate, correct) >= threshold) return true;
+  return chosenWrongs.some(w => strSimilarity(candidate, w) >= threshold);
+}
+
 function buildRoundsFromSong(song) {
   const lines = getLines(song);
   const qs = [];
   if (!lines || lines.length < 4) return qs;
+
   for (let i = 0; i <= lines.length - 2; i++) {
     const prompt  = lines[i];
     const correct = lines[i + 1];
-    const pool = lines.filter((l, idx) => idx !== i && idx !== i+1 && l !== correct);
-    if (pool.length >= 3) {
-      const wrongs = shuffle(pool).slice(0, 3);
-      qs.push({ songTitle: song.song || song.title || formatKey(song._key || ''), artistName: song.artist || '', prompt, correct, choices: shuffle([correct, ...wrongs]) });
+
+    // Exclude prompt line, correct line, and exact duplicates of correct
+    const rawPool = lines.filter((l, idx) => idx !== i && idx !== i + 1 && l.trim() !== correct.trim());
+
+    // Deduplicate pool
+    const seen = new Set();
+    const dedupedPool = rawPool.filter(l => {
+      const key = l.trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    // Pick up to 3 wrongs that are not too similar to correct or each other
+    const wrongs = [];
+    for (const candidate of shuffle(dedupedPool)) {
+      if (wrongs.length >= 3) break;
+      if (!tooSimilar(candidate, correct, wrongs)) wrongs.push(candidate);
     }
+
+    if (wrongs.length < 3) continue;
+
+    qs.push({
+      songTitle: song.song || song.title || formatKey(song._key || ''),
+      artistName: song.artist || '',
+      prompt,
+      correct,
+      choices: shuffle([correct, ...wrongs])
+    });
   }
   return qs;
 }
