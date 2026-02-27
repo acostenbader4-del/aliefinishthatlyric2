@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alie's Finish That Song Lyric 🎵</title>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#060b0a; --surface:#0c1614; --surface2:#121f1c; --surface3:#182926;
+  --accent:#ff6b35; --accent2:#ff4500; --accent3:#ffb347;
+  --teal:#2dd4bf; --teal2:#14b8a6; --teal3:#99f6e4;
+  --green:#4ade80; --red:#fb7185; --gold:#fbbf24;
+  --text:#f0fdf9; --muted:#4d8c82;
+  --border:rgba(255,107,53,.18); --border2:rgba(255,255,255,.06);
+  --glow-o:rgba(255,107,53,.35); --glow-t:rgba(45,212,191,.25);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* SCANLINES */
+body::before{content:'';position:fixed;inset:0;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.12) 3px,rgba(0,0,0,.12) 4px);
+  pointer-events:none;z-index:0;opacity:.35;}
+
+/* TOP GLOW HALO */
+body::after{content:'';position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:80%;height:50vh;
+  background:radial-gradient(ellipse,rgba(255,107,53,.06) 0%,rgba(45,212,191,.04) 50%,transparent 70%);
+  pointer-events:none;z-index:0;}
+
+/* BANNER */
+#fb-banner{position:fixed;top:0;left:0;right:0;z-index:9999;padding:10px 20px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:12px;font-weight:700;letter-spacing:.5px;transition:all .4s;
+  background:var(--surface2);border-bottom:1px solid rgba(255,107,53,.15);color:var(--muted);
+  font-family:'Share Tech Mono',monospace;}
+#fb-banner.connected{background:rgba(255,107,53,.05);border-color:rgba(255,107,53,.3);color:var(--accent3);}
+#fb-banner.error{background:rgba(251,113,133,.05);border-color:rgba(251,113,133,.25);color:var(--red);}
+#fb-banner .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+#fb-banner.connecting .dot{animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.2;transform:scale(.5)}}
+#fb-banner-close{position:absolute;right:16px;background:none;border:none;color:currentColor;cursor:pointer;font-size:18px;opacity:.5;transition:opacity .2s;}
+#fb-banner-close:hover{opacity:1;}
+
+/* LAYOUT */
+.container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:80px 24px 60px;}
+
+/* SCREENS */
+.screen{display:none;}
+.screen.active{display:block;animation:rise .35s cubic-bezier(.4,0,.2,1);}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== LOGO ===== */
+.logo-wrap{margin-bottom:44px;}
+.logo-alie{font-family:'Righteous',sans-serif;font-size:clamp(16px,3.5vw,28px);
+  color:var(--teal);letter-spacing:4px;text-transform:uppercase;display:block;margin-bottom:-4px;
+  text-shadow:0 0 20px var(--glow-t);}
+.logo-main{font-family:'Righteous',sans-serif;font-size:clamp(48px,10vw,92px);
+  line-height:.92;letter-spacing:-1px;display:block;}
+.logo-main .word-finish{color:var(--text);}
+.logo-main .word-that{color:var(--accent);text-shadow:0 0 40px var(--glow-o),0 0 80px rgba(255,107,53,.15);}
+.logo-main .word-song{color:var(--teal);text-shadow:0 0 30px var(--glow-t);}
+.logo-main .word-lyric{color:var(--accent3);text-shadow:0 0 30px rgba(255,179,71,.3);}
+.tagline{color:var(--muted);font-size:11px;letter-spacing:4px;text-transform:uppercase;
+  margin-top:10px;font-family:'Share Tech Mono',monospace;}
+
+/* LANDING CARDS */
+.landing-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:520px;}
+@media(max-width:480px){.landing-cards{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;
+  padding:28px 24px;cursor:pointer;transition:transform .2s,border-color .25s,box-shadow .25s;
+  position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;border-radius:inherit;}
+.card.host::before{background:radial-gradient(ellipse at top left,rgba(255,107,53,.12) 0%,transparent 60%);}
+.card.join::before{background:radial-gradient(ellipse at top left,rgba(45,212,191,.1) 0%,transparent 60%);}
+.card:hover{transform:translateY(-5px);}
+.card:hover::before{opacity:1;}
+.card.host:hover{border-color:rgba(255,107,53,.45);box-shadow:0 8px 32px rgba(255,107,53,.15);}
+.card.join:hover{border-color:rgba(45,212,191,.4);box-shadow:0 8px 32px rgba(45,212,191,.12);}
+.card-icon{font-size:32px;margin-bottom:12px;display:block;}
+.card-title{font-family:'Righteous',sans-serif;font-size:24px;letter-spacing:.5px;margin-bottom:5px;}
+.card.host .card-title{color:var(--accent);}
+.card.join .card-title{color:var(--teal);}
+.card-desc{color:var(--muted);font-size:12.5px;line-height:1.5;}
+
+/* PANEL */
+.panel{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:36px;max-width:640px;
+  position:relative;}
+.panel::before{content:'';position:absolute;top:0;left:24px;right:24px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,107,53,.3),rgba(45,212,191,.2),transparent);}
+.panel-title{font-family:'Righteous',sans-serif;font-size:30px;letter-spacing:.3px;margin-bottom:4px;}
+.panel-title .hi{color:var(--accent);}
+.panel-title .hi2{color:var(--teal);}
+.panel-sub{color:var(--muted);font-size:12.5px;margin-bottom:28px;line-height:1.5;font-family:'Share Tech Mono',monospace;}
+
+/* INPUTS */
+label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:2.5px;color:var(--muted);
+  margin-bottom:6px;font-family:'Share Tech Mono',monospace;}
+input[type=text],textarea,select{width:100%;background:var(--surface2);border:1px solid rgba(255,255,255,.07);
+  border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;
+  outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:20px;appearance:none;}
+input[type=text]:focus,textarea:focus,select:focus{
+  border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,107,53,.08);}
+textarea{height:180px;resize:vertical;line-height:1.65;font-family:'Share Tech Mono',monospace;font-size:12.5px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:10px;border:none;
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;
+  transition:all .18s;letter-spacing:.3px;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover:not(:disabled){background:#ff8c5a;transform:translateY(-2px);box-shadow:0 6px 24px var(--glow-o);}
+.btn-teal{background:var(--teal);color:#000;}
+.btn-teal:hover:not(:disabled){background:var(--teal3);transform:translateY(-2px);box-shadow:0 6px 24px var(--glow-t);}
+.btn-green{background:var(--green);color:#000;}
+.btn-green:hover:not(:disabled){background:#86efac;transform:translateY(-2px);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,.09);}
+.btn-ghost:hover:not(:disabled){color:var(--text);border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04);}
+.btn-danger{background:var(--red);color:#000;}
+.btn-danger:hover:not(:disabled){transform:translateY(-2px);}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-gold:hover:not(:disabled){background:#fcd34d;transform:translateY(-2px);box-shadow:0 6px 24px rgba(251,191,36,.3);}
+.btn-orange{background:#fb923c;color:#000;}
+.btn-orange:hover:not(:disabled){background:#fdba74;transform:translateY(-2px);}
+.btn:disabled{opacity:.3;cursor:not-allowed;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;}
+.btn-sm{padding:7px 13px;font-size:12px;}
+
+/* BACK */
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;cursor:pointer;
+  margin-bottom:20px;transition:color .2s;background:none;border:none;font-family:'Share Tech Mono',monospace;}
+.back-link:hover{color:var(--teal);}
+
+/* ROOM CODE */
+.room-code-box{background:var(--surface2);border:2px solid var(--accent);border-radius:14px;
+  padding:20px 24px;margin:18px 0;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;box-shadow:0 0 30px rgba(255,107,53,.08),inset 0 0 30px rgba(255,107,53,.03);}
+.rcode-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);
+  margin-bottom:4px;font-family:'Share Tech Mono',monospace;}
+.rcode-value{font-family:'Righteous',sans-serif;font-size:52px;color:var(--accent);letter-spacing:10px;line-height:1;
+  text-shadow:0 0 30px var(--glow-o);}
+#qr-code{border-radius:8px;background:white;padding:6px;display:block;}
+
+/* CHIPS */
+.section-label{font-size:10px;text-transform:uppercase;letter-spacing:2.5px;color:var(--muted);
+  margin-bottom:10px;font-family:'Share Tech Mono',monospace;}
+.chip-list{display:flex;flex-wrap:wrap;gap:8px;min-height:36px;}
+.chip{background:var(--surface2);border:1px solid var(--border2);border-radius:30px;padding:6px 14px;
+  font-size:12.5px;display:flex;align-items:center;gap:6px;animation:pop .3s cubic-bezier(.34,1.56,.64,1);}
+@keyframes pop{from{scale:0;opacity:0}to{scale:1;opacity:1}}
+.chip-score{color:var(--accent3);font-weight:800;font-size:11px;font-family:'Share Tech Mono',monospace;}
+.chip-empty{color:var(--muted);font-style:italic;font-size:12.5px;}
+
+/* LYRIC BOX — single line prompt */
+.lyric-box{background:linear-gradient(135deg,var(--surface2),rgba(255,107,53,.04));
+  border-left:3px solid var(--accent);border-radius:0 14px 14px 0;
+  padding:22px 26px;margin:16px 0;position:relative;overflow:hidden;}
+.lyric-box::after{content:'♪';position:absolute;right:20px;bottom:12px;font-size:48px;
+  color:rgba(255,107,53,.06);line-height:1;pointer-events:none;}
+.lyric-box .prompt-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);
+  margin-bottom:10px;display:block;font-family:'Share Tech Mono',monospace;}
+.lyric-box .prompt-text{font-size:20px;line-height:1.5;font-style:italic;
+  color:rgba(240,253,249,.92);font-weight:700;}
+
+/* ANSWER BOX */
+.answer-box{background:rgba(255,107,53,.05);border:1px solid rgba(255,107,53,.25);
+  border-radius:12px;padding:14px 18px;margin:10px 0;}
+.answer-box-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);
+  margin-bottom:5px;font-family:'Share Tech Mono',monospace;}
+.answer-box-text{font-size:16px;font-weight:800;}
+
+/* CHOICES */
+.choices-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;}
+@media(max-width:440px){.choices-grid{grid-template-columns:1fr;}}
+.choice-btn{background:var(--surface2);border:1px solid rgba(255,255,255,.07);border-radius:12px;
+  padding:14px 15px;text-align:left;color:var(--text);font-family:'Nunito',sans-serif;
+  font-size:13px;cursor:pointer;transition:all .18s;line-height:1.45;
+  display:flex;align-items:flex-start;font-weight:700;}
+.choice-btn:hover:not(:disabled){border-color:rgba(255,107,53,.5);background:rgba(255,107,53,.07);transform:translateY(-2px);}
+.choice-btn.correct{border-color:var(--green)!important;background:rgba(74,222,128,.1)!important;}
+.choice-btn.wrong{border-color:var(--red)!important;background:rgba(251,113,133,.08)!important;opacity:.65;}
+.choice-btn.selected{border-color:var(--teal)!important;background:rgba(45,212,191,.08)!important;}
+.choice-btn:disabled{cursor:default;}
+.choice-ltr{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;
+  border-radius:5px;background:rgba(255,107,53,.12);font-size:10px;font-weight:800;color:var(--accent);
+  margin-right:10px;flex-shrink:0;margin-top:1px;font-family:'Share Tech Mono',monospace;}
+.vote-count{margin-left:auto;color:var(--muted);font-size:11px;white-space:nowrap;padding-left:8px;font-family:'Share Tech Mono',monospace;}
+
+/* PROGRESS */
+.q-meta{display:flex;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap;}
+.q-badge{background:var(--accent);color:#000;border-radius:6px;padding:3px 10px;font-weight:900;font-size:11px;letter-spacing:.5px;}
+.q-song{color:var(--muted);font-size:11px;margin-left:auto;font-family:'Share Tech Mono',monospace;}
+.progress-bar{height:2px;background:var(--surface2);border-radius:2px;margin:12px 0;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:2px;transition:width .5s ease;}
+
+/* STATUS */
+.status{padding:11px 15px;border-radius:10px;font-size:13px;margin:10px 0;line-height:1.45;font-family:'Share Tech Mono',monospace;}
+.status.wait{background:rgba(45,212,191,.07);border:1px solid rgba(45,212,191,.22);color:var(--teal);}
+.status.success{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);color:var(--green);}
+.status.error{background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.25);color:var(--red);}
+.status.info{background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.2);color:var(--accent3);}
+
+/* SCOREBOARD */
+.scoreboard{background:var(--surface);border:1px solid var(--border2);border-radius:16px;overflow:hidden;margin-top:18px;}
+.score-row{display:flex;align-items:center;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.04);}
+.score-row:last-child{border-bottom:none;}
+.score-rank{font-family:'Righteous',sans-serif;font-size:20px;color:var(--muted);width:32px;flex-shrink:0;}
+.score-rank.gold{color:var(--gold);text-shadow:0 0 15px rgba(251,191,36,.4);}
+.score-name{flex:1;font-size:14px;font-weight:800;}
+.score-pts{font-family:'Share Tech Mono',monospace;font-size:20px;color:var(--accent);font-weight:500;}
+
+/* SONG POOL */
+.pool-grid{display:grid;gap:8px;margin:14px 0;}
+.song-item{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:13px 16px;
+  display:flex;align-items:center;gap:12px;transition:border-color .2s;}
+.song-item:hover{border-color:rgba(255,255,255,.12);}
+.song-item-info{flex:1;min-width:0;}
+.song-item-title{font-weight:800;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.song-item-count{font-size:11px;color:var(--muted);margin-top:2px;font-family:'Share Tech Mono',monospace;}
+.song-item.no-lyrics{border-color:rgba(251,191,36,.15);}
+.song-item.no-lyrics .song-item-title{color:rgba(255,179,71,.85);}
+
+hr{border:none;border-top:1px solid rgba(255,255,255,.05);margin:22px 0;}
+.small-text{font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;
+  display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);}
+.modal-overlay.open{display:flex;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:32px;
+  width:100%;max-width:600px;position:relative;animation:riseModal .25s ease;
+  max-height:90vh;overflow-y:auto;}
+.modal::before{content:'';position:absolute;top:0;left:24px;right:24px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,107,53,.4),rgba(45,212,191,.3),transparent);}
+@keyframes riseModal{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--muted);
+  font-size:22px;cursor:pointer;transition:color .2s;}
+.modal-close:hover{color:var(--accent);}
+.modal-title{font-family:'Righteous',sans-serif;font-size:26px;letter-spacing:.3px;margin-bottom:4px;}
+.modal-title .hi{color:var(--accent);}
+.modal-sub{color:var(--muted);font-size:12px;margin-bottom:24px;font-family:'Share Tech Mono',monospace;}
+
+/* TABS */
+.pool-tabs{display:flex;gap:7px;margin-bottom:20px;flex-wrap:wrap;}
+.pool-tab{flex:1;padding:9px;border-radius:9px;border:1px solid var(--border2);
+  background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;
+  font-size:12px;font-weight:800;cursor:pointer;transition:all .18s;min-width:70px;}
+.pool-tab:hover{color:var(--text);border-color:rgba(255,107,53,.3);}
+.pool-tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:14px;}
+.search-wrap input{padding-left:34px;margin-bottom:0;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;}
+
+/* FILTER TABS */
+.filter-tabs{display:flex;gap:6px;margin-bottom:12px;}
+.filter-tab{padding:5px 12px;border-radius:7px;border:1px solid var(--border2);
+  background:transparent;color:var(--muted);font-family:'Share Tech Mono',monospace;
+  font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;}
+.filter-tab:hover{color:var(--text);}
+.filter-tab.active{background:var(--surface3);color:var(--text);border-color:rgba(255,255,255,.15);}
+.filter-tab .badge{display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,.08);
+  font-size:10px;margin-left:4px;}
+
+/* INLINE LYRICS EDITOR */
+.inline-editor{background:var(--surface3);border:1px solid rgba(255,107,53,.2);border-radius:12px;
+  padding:16px;margin-top:8px;display:none;}
+.inline-editor.open{display:block;animation:rise .25s ease;}
+.inline-editor label{color:var(--accent3);}
+.inline-editor textarea{height:140px;margin-bottom:8px;}
+
+/* PREVIEW */
+.preview-song-row{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;
+  padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.preview-song-name{font-size:13px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.preview-song-lines{font-size:11px;color:var(--muted);flex-shrink:0;font-family:'Share Tech Mono',monospace;}
+.preview-song-warn{font-size:11px;color:var(--gold);flex-shrink:0;font-family:'Share Tech Mono',monospace;}
+
+/* IMPORT PROGRESS */
+.import-progress{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;margin-top:10px;display:none;}
+.import-progress-bar-wrap{height:3px;background:rgba(255,255,255,.07);border-radius:2px;margin:8px 0;}
+.import-progress-bar{height:100%;background:var(--accent);border-radius:2px;transition:width .3s ease;width:0%;}
+.import-progress-label{font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;}
+
+.drop-zone{border:2px dashed rgba(255,107,53,.25);border-radius:12px;padding:28px 20px;
+  text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px;position:relative;}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:rgba(255,107,53,.04);}
+.drop-zone-icon{font-size:26px;display:block;margin-bottom:8px;}
+.drop-zone-text{font-size:12.5px;color:var(--muted);font-family:'Share Tech Mono',monospace;}
+.drop-zone-text strong{color:var(--text);}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+
+.format-hint{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;
+  padding:12px 16px;margin-bottom:14px;font-size:12px;line-height:1.7;color:var(--muted);font-family:'Share Tech Mono',monospace;}
+.format-hint code{background:rgba(255,107,53,.1);color:var(--accent3);border-radius:4px;padding:1px 5px;}
+.format-hint pre{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.06);border-radius:8px;
+  padding:10px 12px;margin-top:8px;overflow-x:auto;font-size:11px;color:var(--accent3);line-height:1.65;}
+
+.fmt-tabs{display:flex;gap:6px;margin-bottom:14px;}
+.fmt-tab{padding:7px 13px;border-radius:8px;border:1px solid var(--border2);
+  background:transparent;color:var(--muted);font-family:'Share Tech Mono',monospace;
+  font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;}
+.fmt-tab:hover{color:var(--text);}
+.fmt-tab.active{background:var(--surface3);color:var(--accent3);border-color:rgba(255,107,53,.25);}
+</style>
+</head>
+<body>
+
+<div id="fb-banner" class="connecting">
+  <div class="dot"></div>
+  <span id="fb-banner-text">Connecting to database…</span>
+  <button id="fb-banner-close">×</button>
+</div>
+
+<div class="container">
+
+  <!-- LANDING -->
+  <div id="screen-landing" class="screen active">
+    <div class="logo-wrap">
+      <span class="logo-alie">Alie's</span>
+      <span class="logo-main">
+        <span class="word-finish">Finish </span><span class="word-that">That</span><br>
+        <span class="word-song">Song </span><span class="word-lyric">Lyric</span>
+      </span>
+      <p class="tagline">♪ one line. what comes next? ♪</p>
+    </div>
+    <div class="landing-cards">
+      <div class="card host" id="btn-go-host">
+        <span class="card-icon">🎤</span>
+        <div class="card-title">Host</div>
+        <div class="card-desc">Create a room and run the game for everyone</div>
+      </div>
+      <div class="card join" id="btn-go-player">
+        <span class="card-icon">🎧</span>
+        <div class="card-title">Join</div>
+        <div class="card-desc">Enter a code and compete with friends</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOST SETUP -->
+  <div id="screen-host-setup" class="screen">
+    <button class="back-link" id="btn-back-setup">← Back</button>
+    <div class="panel">
+      <div class="panel-title">Host <span class="hi">Setup</span></div>
+      <div class="panel-sub">One random song question per song in your pool</div>
+      <div id="song-preview" style="display:none">
+        <div class="status info" id="song-preview-text"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-create-room">🎲 Create Room</button>
+        <button class="btn btn-gold" id="btn-open-pool">🎵 Manage Songs</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOST LOBBY -->
+  <div id="screen-host-lobby" class="screen">
+    <div class="panel" style="max-width:680px">
+      <div class="panel-title">Game <span class="hi2">Lobby</span></div>
+      <div class="panel-sub" id="lobby-song-name"></div>
+      <div class="room-code-box">
+        <div>
+          <div class="rcode-label">Room Code</div>
+          <div class="rcode-value" id="room-code-display">----</div>
+          <div class="small-text" style="margin-top:6px">Share this with players</div>
+        </div>
+        <div id="qr-code"></div>
+      </div>
+      <div class="section-label" style="margin-top:20px">Players (<span id="player-count">0</span>)</div>
+      <div class="chip-list" id="players-chip-list"><span class="chip-empty">Waiting for players…</span></div>
+      <hr>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-start-game" disabled>▶ Start Game</button>
+        <button class="btn btn-ghost" id="btn-end-lobby">✕ End Game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOST QUESTION -->
+  <div id="screen-host-question" class="screen">
+    <div class="panel" style="max-width:720px">
+      <div class="q-meta">
+        <span class="q-badge" id="hq-num">Round 1</span>
+        <span style="color:var(--muted);font-size:11px;font-family:'Share Tech Mono',monospace">of <span id="hq-total">?</span></span>
+        <span class="q-song" id="hq-song"></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="hq-progress"></div></div>
+      <div class="lyric-box">
+        <span class="prompt-label">♪ what's the next line after…</span>
+        <span class="prompt-text" id="hq-prompt"></span>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">✓ Correct Answer — host only</div>
+        <div class="answer-box-text" id="hq-correct"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 0 12px;">
+        <span style="font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;">
+          Answered: <strong style="color:var(--teal3)" id="hq-answered">0</strong> / <span id="hq-total-players">0</span>
+        </span>
+      </div>
+      <div id="hq-reveal-section" style="display:none">
+        <hr>
+        <div class="section-label">Results</div>
+        <div class="choices-grid" id="hq-choices"></div>
+      </div>
+      <hr>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-reveal">👁 Reveal Answers</button>
+        <button class="btn btn-teal" id="btn-next" disabled>Next →</button>
+        <button class="btn btn-ghost" id="btn-end-question">End Game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOST FINAL -->
+  <div id="screen-host-final" class="screen">
+    <div class="panel" style="max-width:500px">
+      <div class="panel-title">Final <span class="hi">Scores</span> 🏆</div>
+      <div class="panel-sub">Game over — here's how everyone did!</div>
+      <div class="scoreboard" id="host-final-scoreboard"></div>
+      <div class="btn-row" style="margin-top:24px">
+        <button class="btn btn-primary" id="btn-play-again">🔄 Play Again</button>
+        <button class="btn btn-ghost" id="btn-final-home">Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYER JOIN -->
+  <div id="screen-player-join" class="screen">
+    <button class="back-link" id="btn-back-join">← Back</button>
+    <div class="panel">
+      <div class="panel-title">Join <span class="hi2">Game</span></div>
+      <div class="panel-sub">Enter the room code shown on the host's screen</div>
+      <label>Room Code</label>
+      <input type="text" id="join-code" placeholder="ABCD" maxlength="4"
+        style="text-transform:uppercase;font-family:'Righteous',sans-serif;font-size:38px;letter-spacing:12px;text-align:center">
+      <label>Your Nickname</label>
+      <input type="text" id="join-nickname" placeholder="e.g. LyricLegend" maxlength="20">
+      <div class="btn-row">
+        <button class="btn btn-teal" id="btn-join-room">🎵 Join Room</button>
+      </div>
+      <div class="status error" id="join-error" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- PLAYER WAITING -->
+  <div id="screen-player-waiting" class="screen">
+    <div class="panel">
+      <div class="panel-title">You're <span class="hi">In!</span> 🎉</div>
+      <div class="panel-sub" id="player-welcome-msg"></div>
+      <div class="status wait">⏳ Waiting for the host to start the game…</div>
+      <div style="margin-top:18px">
+        <div class="section-label">In the lobby</div>
+        <div class="chip-list" id="player-lobby-chips"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYER QUESTION -->
+  <div id="screen-player-question" class="screen">
+    <div class="panel" style="max-width:600px">
+      <div class="q-meta">
+        <span class="q-badge" id="pq-num">Round 1</span>
+        <span class="q-song" id="pq-song"></span>
+      </div>
+      <div class="lyric-box">
+        <span class="prompt-label">♪ what comes after…</span>
+        <span class="prompt-text" id="pq-prompt"></span>
+      </div>
+      <div class="choices-grid" id="pq-choices"></div>
+      <div id="pq-status" style="display:none"></div>
+      <div id="pq-score" style="font-size:12px;color:var(--muted);margin-top:8px;font-family:'Share Tech Mono',monospace;"></div>
+    </div>
+  </div>
+
+  <!-- PLAYER FINAL -->
+  <div id="screen-player-final" class="screen">
+    <div class="panel" style="max-width:500px">
+      <div class="panel-title">Game <span class="hi2">Over!</span> 🎵</div>
+      <div class="panel-sub" id="player-final-msg"></div>
+      <div class="scoreboard" id="player-final-scoreboard"></div>
+      <div class="btn-row" style="margin-top:24px">
+        <button class="btn btn-ghost" id="btn-player-home">Home</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SONG POOL MODAL -->
+<div class="modal-overlay" id="modal-pool">
+  <div class="modal">
+    <button class="modal-close" id="modal-pool-close">×</button>
+    <div class="modal-title">Song <span class="hi">Library</span></div>
+    <div class="modal-sub">Manage songs & add lyrics to incomplete entries</div>
+
+    <div class="pool-tabs">
+      <button class="pool-tab active" id="tab-view">🎵 Songs</button>
+      <button class="pool-tab" id="tab-add">➕ Add New</button>
+      <button class="pool-tab" id="tab-bulk">📦 Bulk Import</button>
+    </div>
+
+    <!-- VIEW SONGS -->
+    <div id="pool-panel-view">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="pool-search" placeholder="Search songs…" style="margin-bottom:0;">
+      </div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" id="filter-all">All <span class="badge" id="badge-all">0</span></button>
+        <button class="filter-tab" id="filter-no-lyrics">⚠️ Need Lyrics <span class="badge" id="badge-no-lyrics">0</span></button>
+        <button class="filter-tab" id="filter-ready">✅ Ready <span class="badge" id="badge-ready">0</span></button>
+      </div>
+      <div class="pool-grid" id="pool-song-list">
+        <span class="chip-empty">Loading…</span>
+      </div>
+    </div>
+
+    <!-- ADD NEW SONG -->
+    <div id="pool-panel-add" style="display:none">
+      <label>Song Title</label>
+      <input type="text" id="pool-title" placeholder="e.g. Andrew">
+      <label>Lyrics — one line per phrase (6+ recommended)</label>
+      <textarea id="pool-lyrics" placeholder="Oh baby baby&#10;How was I supposed to know&#10;That something wasn't right here&#10;Oh baby baby&#10;I shouldn't have let you go&#10;And now you're out of sight yeah"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-save-song">💾 Save Song</button>
+      </div>
+      <div class="status error" id="pool-error" style="display:none;margin-top:10px"></div>
+    </div>
+
+    <!-- BULK IMPORT -->
+    <div id="pool-panel-bulk" style="display:none">
+      <div class="fmt-tabs">
+        <button class="fmt-tab active" id="fmt-text">📝 Text</button>
+        <button class="fmt-tab" id="fmt-json">{ } JSON</button>
+        <button class="fmt-tab" id="fmt-file">📁 File</button>
+      </div>
+      <div class="format-hint" id="hint-text">
+        Separate songs with <code>---</code> on its own line:
+        <pre>Song Title Here
+First lyric line
+Second lyric line
+Third lyric line
+---
+
+Another Song
+Line one
+Line two
+Line three
+---</pre>
+      </div>
+      <div class="format-hint" id="hint-json" style="display:none">
+        <pre>[{ "title": "Song Name", "lines": ["Line 1", "Line 2", "Line 3"] }]</pre>
+      </div>
+      <div id="bulk-file-zone" style="display:none">
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="bulk-file-input" accept=".txt,.json">
+          <span class="drop-zone-icon">📂</span>
+          <div class="drop-zone-text"><strong>Drop a file here</strong> or click to browse</div>
+        </div>
+      </div>
+      <div id="bulk-paste-area">
+        <label>Paste songs here</label>
+        <textarea id="bulk-input" style="height:180px;" placeholder="Paste songs…"></textarea>
+      </div>
+      <div id="bulk-preview" style="display:none;margin-top:12px;">
+        <div class="section-label"><span id="preview-count">0</span> songs detected</div>
+        <div id="preview-list"></div>
+      </div>
+      <div class="import-progress" id="import-progress">
+        <div class="import-progress-label" id="import-progress-label">Importing…</div>
+        <div class="import-progress-bar-wrap"><div class="import-progress-bar" id="import-progress-bar"></div></div>
+      </div>
+      <div class="status error" id="bulk-error" style="display:none;margin-top:10px"></div>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn btn-orange" id="btn-preview-bulk">🔍 Preview</button>
+        <button class="btn btn-primary" id="btn-import-bulk" disabled>⬆️ Import All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, push, onValue, update, remove }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCa5qaLdn18I0wNmPuBLJXcdMUSI3BGWw8",
+  authDomain: "alienamethatsong.firebaseapp.com",
+  databaseURL: "https://alienamethatsong-default-rtdb.firebaseio.com",
+  projectId: "alienamethatsong",
+  storageBucket: "alienamethatsong.firebasestorage.app",
+  messagingSenderId: "38017197883",
+  appId: "1:38017197883:web:98177061097a37ab39b91e",
+  measurementId: "G-GM58HQZJB7"
+};
+
+let db;
+const banner = document.getElementById('fb-banner');
+const bannerText = document.getElementById('fb-banner-text');
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getDatabase(app);
+  banner.className = 'connected';
+  bannerText.textContent = '✓ Connected to database';
+  setTimeout(() => { banner.style.display = 'none'; }, 3000);
+} catch(e) {
+  banner.className = 'error';
+  bannerText.textContent = '✗ Firebase error: ' + e.message;
+}
+document.getElementById('fb-banner-close').addEventListener('click', () => { banner.style.display = 'none'; });
+
+
+// Normalize lyrics — Firebase sometimes stores arrays as {0:"line",1:"line",...}
+
+// Format a Firebase key like "AJR___Dear_Winter_2_0" -> "AJR - Dear Winter 2 0"
+function formatKey(key) {
+  return key.replace(/___/g, ' - ').replace(/_/g, ' ');
+}
+function getLines(song) {
+  const raw = song.lines;
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  // Firebase sometimes stores arrays as objects with numeric keys
+  return Object.keys(raw).sort((a,b) => Number(a)-Number(b)).map(k => raw[k]);
+}
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+let currentRoomCode = null;
+let questions = [];
+let currentQIdx = 0;
+let myPlayerId = null;
+let myPlayerRoomCode = null;
+let myScore = 0;
+let playerCurrentQ = -1;
+let roomUnsubscribe = null;
+let answersUnsubscribe = null;
+
+// ── LANDING ──
+document.getElementById('btn-go-host').addEventListener('click', () => {
+  document.getElementById('song-preview').style.display = 'none';
+  show('screen-host-setup');
+});
+document.getElementById('btn-go-player').addEventListener('click', () => show('screen-player-join'));
+document.getElementById('btn-back-setup').addEventListener('click', () => show('screen-landing'));
+document.getElementById('btn-back-join').addEventListener('click', () => show('screen-landing'));
+
+// ── POOL MODAL ──
+document.getElementById('btn-open-pool').addEventListener('click', () => {
+  document.getElementById('modal-pool').classList.add('open');
+  switchPoolTab('view');
+});
+document.getElementById('modal-pool-close').addEventListener('click', () => {
+  document.getElementById('modal-pool').classList.remove('open');
+});
+document.getElementById('modal-pool').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-pool'))
+    document.getElementById('modal-pool').classList.remove('open');
+});
+
+function switchPoolTab(tabName) {
+  ['view','add','bulk'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tabName);
+    document.getElementById('pool-panel-'+t).style.display = t===tabName ? 'block' : 'none';
+  });
+  if (tabName === 'view') loadPoolSongs();
+  if (tabName === 'bulk') resetBulkImport();
+}
+document.getElementById('tab-view').addEventListener('click', () => switchPoolTab('view'));
+document.getElementById('tab-add').addEventListener('click', () => switchPoolTab('add'));
+document.getElementById('tab-bulk').addEventListener('click', () => switchPoolTab('bulk'));
+
+// ── SONG FILTER & SEARCH ──
+let allSongsCache = {};
+let activeFilter = 'all';
+
+document.getElementById('pool-search').addEventListener('input', () => renderPoolSongs());
+document.getElementById('filter-all').addEventListener('click', () => { activeFilter='all'; renderPoolSongs(); });
+document.getElementById('filter-no-lyrics').addEventListener('click', () => { activeFilter='no-lyrics'; renderPoolSongs(); });
+document.getElementById('filter-ready').addEventListener('click', () => { activeFilter='ready'; renderPoolSongs(); });
+
+async function loadPoolSongs() {
+  const container = document.getElementById('pool-song-list');
+  container.innerHTML = '<span class="chip-empty">Loading…</span>';
+  try {
+    allSongsCache = await getAllSongs();
+    renderPoolSongs();
+  } catch(e) {
+    container.innerHTML = `<div class="status error"><strong>Could not load songs.</strong><br>${esc(e.message)}</div>`;
+  }
+}
+
+function renderPoolSongs() {
+  const container = document.getElementById('pool-song-list');
+  const searchVal = document.getElementById('pool-search').value.toLowerCase().trim();
+  const entries = Object.entries(allSongsCache);
+  const total = entries.length;
+  const noLyrics = entries.filter(([,s]) => !s || getLines(s).length < 4);
+  const ready = entries.filter(([,s]) => s && getLines(s).length >= 4);
+
+  document.getElementById('badge-all').textContent = total;
+  document.getElementById('badge-no-lyrics').textContent = noLyrics.length;
+  document.getElementById('badge-ready').textContent = ready.length;
+
+  ['all','no-lyrics','ready'].forEach(f => {
+    document.getElementById('filter-' + f).classList.toggle('active', f === activeFilter);
+  });
+
+  let filtered = entries;
+  if (activeFilter === 'no-lyrics') filtered = noLyrics;
+  if (activeFilter === 'ready') filtered = ready;
+  if (searchVal) filtered = filtered.filter(([id,s]) => { const name = (s.song || s.title || formatKey(id)).toLowerCase(); return name.includes(searchVal); });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<span class="chip-empty">${total === 0 ? 'No songs yet — add some!' : 'No songs match your filter.'}</span>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  filtered.forEach(([id, s]) => {
+    if (!s) return;
+    const hasLyrics = getLines(s).length >= 4;
+    const div = document.createElement('div');
+    div.className = 'song-item' + (hasLyrics ? '' : ' no-lyrics');
+    div.setAttribute('data-id', id);
+    const lineCount = getLines(s).length;
+    const roundsCount = hasLyrics ? buildRoundsFromSong(s).length : 0;
+    div.innerHTML = `
+      <div class="song-item-info">
+        <div class="song-item-title">${hasLyrics ? '🎵' : '⚠️'} ${esc(s.song || s.title || formatKey(id))}${s.artist ? ' — ' + esc(s.artist) : ''}</div>
+        <div class="song-item-count">${hasLyrics ? `${lineCount} lines · ${roundsCount} questions` : 'No lyrics — click to add'}</div>
+      </div>
+      <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;">
+        ${!hasLyrics ? `<button class="btn btn-gold btn-sm add-lyrics-btn">+ Add Lyrics</button>` : `<button class="btn btn-ghost btn-sm edit-lyrics-btn">✏️ Edit</button>`}
+        <button class="btn btn-ghost btn-sm del-btn" style="color:var(--red);border-color:rgba(251,113,133,.2);">🗑</button>
+      </div>
+    `;
+    div.querySelector('.del-btn').addEventListener('click', async () => {
+      if (!confirm(`Delete "${s.song || s.title || 'this song'}"?`)) return;
+      div.style.opacity = '0.3';
+      try { await remove(ref(db, 'customSongs_songs/' + id)); } catch(_) {}
+      try { await remove(ref(db, 'songPool/' + id)); } catch(_) {}
+      delete allSongsCache[id];
+      renderPoolSongs();
+    });
+    const editorBtn = div.querySelector('.add-lyrics-btn') || div.querySelector('.edit-lyrics-btn');
+    editorBtn.addEventListener('click', () => {
+      document.querySelectorAll('.inline-editor.open').forEach(ed => ed.remove());
+      const editor = document.createElement('div');
+      editor.className = 'inline-editor open';
+      editor.innerHTML = `
+        <label>Paste lyrics for "${esc(s.song || s.title || 'this song')}" — one line per phrase</label>
+        <textarea placeholder="First line of the song&#10;Second line here&#10;Third line here…">${getLines(s).join('\n')}</textarea>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary btn-sm save-inline">💾 Save</button>
+          <button class="btn btn-ghost btn-sm cancel-inline">Cancel</button>
+        </div>
+        <div class="status error" style="display:none;margin-top:8px;font-size:12px;"></div>
+      `;
+      div.appendChild(editor);
+      editor.querySelector('.cancel-inline').addEventListener('click', () => editor.remove());
+      editor.querySelector('.save-inline').addEventListener('click', async () => {
+        const raw = editor.querySelector('textarea').value.trim();
+        const errEl = editor.querySelector('.status.error');
+        errEl.style.display = 'none';
+        const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if (lines.length < 4) { errEl.textContent = 'Need at least 4 lyric lines.'; errEl.style.display='block'; return; }
+        try {
+          const snap = await get(ref(db, 'customSongs_songs/' + id));
+          // Build the lyrics_songs key from artist + song
+          const s = allSongsCache[id];
+          const lyricsKey = (s.artist || '').replace(/[^a-zA-Z0-9]/g, '_') + '___' + (s.song || '').replace(/[^a-zA-Z0-9]/g, '_');
+          await update(ref(db, 'lyrics_songs/' + lyricsKey), { lines });
+          allSongsCache[id] = { ...allSongsCache[id], lines: lines };
+          editor.remove();
+          renderPoolSongs();
+        } catch(e) { errEl.textContent = 'Save failed: ' + e.message; errEl.style.display='block'; }
+      });
+    });
+    container.appendChild(div);
+  });
+}
+
+// ── ADD SINGLE SONG ──
+document.getElementById('btn-save-song').addEventListener('click', saveSong);
+async function saveSong() {
+  const title = document.getElementById('pool-title').value.trim();
+  const raw   = document.getElementById('pool-lyrics').value.trim();
+  const errEl = document.getElementById('pool-error');
+  errEl.style.display = 'none';
+  if (!title) { errEl.textContent = 'Enter a song title.'; errEl.style.display='block'; return; }
+  if (!raw)   { errEl.textContent = 'Paste the lyrics.'; errEl.style.display='block'; return; }
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  if (lines.length < 4) { errEl.textContent = 'Need at least 4 lyric lines.'; errEl.style.display='block'; return; }
+  try {
+    await push(ref(db, 'songPool'), { song: title, lines: lines });
+    document.getElementById('pool-title').value  = '';
+    document.getElementById('pool-lyrics').value = '';
+    switchPoolTab('view');
+  } catch(e) { errEl.textContent = 'Save failed: ' + e.message; errEl.style.display='block'; }
+}
+
+// ── BULK IMPORT ──
+let currentBulkFormat = 'text';
+let parsedBulkSongs = [];
+
+function resetBulkImport() {
+  currentBulkFormat = 'text'; parsedBulkSongs = [];
+  setFmtTab('text');
+  document.getElementById('bulk-input').value = '';
+  document.getElementById('bulk-preview').style.display = 'none';
+  document.getElementById('bulk-error').style.display = 'none';
+  document.getElementById('btn-import-bulk').disabled = true;
+  document.getElementById('import-progress').style.display = 'none';
+}
+
+function setFmtTab(fmt) {
+  currentBulkFormat = fmt;
+  ['text','json','file'].forEach(f => {
+    document.getElementById('fmt-'+f).classList.toggle('active', f===fmt);
+    const h = document.getElementById('hint-'+f);
+    if (h) h.style.display = f===fmt ? 'block' : 'none';
+  });
+  document.getElementById('bulk-file-zone').style.display  = fmt==='file' ? 'block' : 'none';
+  document.getElementById('bulk-paste-area').style.display = fmt!=='file' ? 'block' : 'none';
+  document.getElementById('bulk-preview').style.display = 'none';
+  document.getElementById('btn-import-bulk').disabled = true;
+  parsedBulkSongs = [];
+}
+document.getElementById('fmt-text').addEventListener('click', () => setFmtTab('text'));
+document.getElementById('fmt-json').addEventListener('click', () => setFmtTab('json'));
+document.getElementById('fmt-file').addEventListener('click', () => setFmtTab('file'));
+
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) handleFileLoad(e.dataTransfer.files[0]);
+});
+document.getElementById('bulk-file-input').addEventListener('change', e => {
+  if (e.target.files[0]) handleFileLoad(e.target.files[0]);
+});
+
+function handleFileLoad(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const fmt = file.name.endsWith('.json') ? 'json' : 'text';
+    showBulkPreview(fmt === 'json' ? parseJSON(ev.target.result) : parseText(ev.target.result));
+  };
+  reader.readAsText(file);
+}
+
+function parseText(raw) {
+  const songs = [];
+  const blocks = raw.split(/^---\s*$/m);
+  for (const block of blocks) {
+    const lines = block.trim().split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    if (lines.length < 2) continue;
+    songs.push({ title: lines[0], lines: lines.slice(1) });
+  }
+  return songs;
+}
+function parseJSON(raw) {
+  try {
+    const data = JSON.parse(raw);
+    if (!Array.isArray(data)) return (data.song && getLines(data).length > 0) ? [data] : null;
+    return data.filter(s => s && s.song && getLines(s).length > 0);
+  } catch(e) { return null; }
+}
+
+document.getElementById('btn-preview-bulk').addEventListener('click', () => {
+  const errEl = document.getElementById('bulk-error');
+  errEl.style.display = 'none';
+  if (currentBulkFormat === 'file') {
+    if (parsedBulkSongs.length === 0) { errEl.textContent = 'Please upload a file first.'; errEl.style.display='block'; return; }
+    showBulkPreview(parsedBulkSongs); return;
+  }
+  const raw = document.getElementById('bulk-input').value.trim();
+  if (!raw) { errEl.textContent = 'Please paste some content first.'; errEl.style.display='block'; return; }
+  const songs = currentBulkFormat === 'json' ? parseJSON(raw) : parseText(raw);
+  if (!songs || songs.length === 0) {
+    errEl.textContent = currentBulkFormat === 'json' ? 'Invalid JSON format.' : 'No songs found — make sure each block ends with --- on its own line.';
+    errEl.style.display='block'; return;
+  }
+  showBulkPreview(songs);
+});
+
+function showBulkPreview(songs) {
+  if (!songs) return;
+  parsedBulkSongs = songs;
+  const errEl = document.getElementById('bulk-error');
+  errEl.style.display = 'none';
+  const valid = songs.filter(s => getLines(s).length >= 4);
+  const invalid = songs.filter(s => getLines(s).length < 4);
+  document.getElementById('preview-count').textContent = songs.length;
+  const list = document.getElementById('preview-list');
+  list.innerHTML = '';
+  songs.forEach(s => {
+    const ok = getLines(s).length >= 4;
+    const row = document.createElement('div');
+    row.className = 'preview-song-row';
+    row.innerHTML = `
+      <div class="preview-song-name">${ok ? '✅' : '⚠️'} ${esc(s.song || '(no title)')}${s.artist ? ' — ' + esc(s.artist) : ''}</div>
+      ${ok ? `<div class="preview-song-lines">${getLines(s).length} lines</div>`
+           : `<div class="preview-song-warn">Only ${getLines(s).length} lines (4 min)</div>`}`;
+    list.appendChild(row);
+  });
+  document.getElementById('bulk-preview').style.display = 'block';
+  document.getElementById('btn-import-bulk').disabled = valid.length === 0;
+  if (invalid.length > 0) {
+    errEl.textContent = `⚠️ ${invalid.length} song(s) will be skipped (need at least 4 lines each).`;
+    errEl.style.display = 'block';
+  }
+}
+
+document.getElementById('btn-import-bulk').addEventListener('click', importBulk);
+async function importBulk() {
+  const valid = parsedBulkSongs.filter(s => getLines(s).length >= 4);
+  if (valid.length === 0) return;
+  const progressEl  = document.getElementById('import-progress');
+  const progressBar = document.getElementById('import-progress-bar');
+  const progressLbl = document.getElementById('import-progress-label');
+  const importBtn   = document.getElementById('btn-import-bulk');
+  const previewBtn  = document.getElementById('btn-preview-bulk');
+  importBtn.disabled = true; previewBtn.disabled = true;
+  progressEl.style.display = 'block';
+  let done = 0, failed = 0;
+  for (const song of valid) {
+    try {
+      await push(ref(db, 'songPool'), { song: song.title.trim(), lines: getLines(song).map(l => l.trim()).filter(l => l) });
+      done++;
+    } catch(e) { failed++; }
+    const pct = Math.round((done + failed) / valid.length * 100);
+    progressBar.style.width = pct + '%';
+    progressLbl.textContent = `Importing… ${done + failed} / ${valid.length}`;
+  }
+  progressLbl.textContent = failed === 0 ? `✅ Done! ${done} song${done!==1?'s':''} imported.` : `⚠️ ${done} imported, ${failed} failed.`;
+  progressBar.style.background = failed > 0 ? 'var(--red)' : 'var(--green)';
+  previewBtn.disabled = false;
+  parsedBulkSongs = [];
+  document.getElementById('bulk-input').value = '';
+  document.getElementById('bulk-preview').style.display = 'none';
+  setTimeout(() => { switchPoolTab('view'); }, 2000);
+}
+
+// ── CREATE ROOM ──
+document.getElementById('btn-create-room').addEventListener('click', createRoom);
+
+// Normalize for matching: lowercase, remove all non-alphanumeric
+function norm(s) {
+  return (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+// Join customSongs_songs (artist + song name) with lyrics_songs (lines)
+// They link via normalized artist+song matching the lyrics_songs key format
+async function getAllSongs() {
+  const result = {};
+  let customSnap, lyricsSnap;
+  try { customSnap = await get(ref(db, 'customSongs_songs')); } catch(_) {}
+  try { lyricsSnap = await get(ref(db, 'lyrics_songs')); } catch(_) {}
+
+  const customSongs = (customSnap && customSnap.exists()) ? customSnap.val() : {};
+  const lyricsSongs = (lyricsSnap && lyricsSnap.exists()) ? lyricsSnap.val() : {};
+
+  // Build lookup: "normArtist|||normSong" -> lines array
+  const lyricsLookup = {};
+  for (const key of Object.keys(lyricsSongs)) {
+    const parts = key.split('___');
+    if (parts.length >= 2) {
+      const normArtist = norm(parts[0]);
+      const normSong   = norm(parts.slice(1).join('___'));
+      const rawLines   = lyricsSongs[key].lines || [];
+      // Handle both array and Firebase object-with-numeric-keys
+      const lines = Array.isArray(rawLines)
+        ? rawLines
+        : Object.keys(rawLines).sort((a,b) => Number(a)-Number(b)).map(k => rawLines[k]);
+      lyricsLookup[normArtist + '|||' + normSong] = lines;
+    }
+  }
+
+  // Merge each custom song with its lyrics
+  for (const [id, s] of Object.entries(customSongs)) {
+    if (!s) continue;
+    const lookupKey = norm(s.artist) + '|||' + norm(s.song);
+    const lines = lyricsLookup[lookupKey] || [];
+    result[id] = { ...s, lines };
+  }
+
+  return result;
+}
+
+async function createRoom() {
+  const preview    = document.getElementById('song-preview');
+  const previewTxt = document.getElementById('song-preview-text');
+  preview.style.display = 'none';
+  let songs;
+  try { songs = await getAllSongs(); } catch(e) { alert('Firebase error: ' + e.message); return; }
+  const validKeys = Object.keys(songs).filter(k => songs[k] && getLines(songs[k]).length >= 4);
+  if (validKeys.length === 0) { alert('No songs with lyrics yet! Add lyrics via "Manage Songs" first.'); return; }
+  questions = buildRounds(songs, validKeys);
+  if (questions.length < 1) { alert('Not enough lyric lines. Add more lines to your songs.'); return; }
+  previewTxt.textContent = `🎲 ${questions.length} rounds ready across ${validKeys.length} songs!`;
+  preview.style.display = 'block';
+  const code = makeCode();
+  currentRoomCode = code; currentQIdx = 0;
+  try {
+    await set(ref(db, 'rooms/' + code), { questions, status: 'lobby', currentQuestion: 0, players: {} });
+  } catch(e) { alert('Could not create room: ' + e.message); return; }
+  document.getElementById('room-code-display').textContent = code;
+  document.getElementById('lobby-song-name').textContent = `🎵 ${questions.length} rounds · ${validKeys.length} songs in pool`;
+  drawQR(code);
+  attachRoomListener(code);
+  show('screen-host-lobby');
+}
+
+function makeCode() {
+  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:4}, () => c[Math.floor(Math.random()*c.length)]).join('');
+}
+
+function buildRoundsFromSong(song) {
+  const lines = getLines(song);
+  const qs = [];
+  if (!lines || lines.length < 4) return qs;
+  for (let i = 0; i <= lines.length - 2; i++) {
+    const prompt  = lines[i];
+    const correct = lines[i + 1];
+    const pool = lines.filter((l, idx) => idx !== i && idx !== i+1 && l !== correct);
+    if (pool.length >= 3) {
+      const wrongs = shuffle(pool).slice(0, 3);
+      qs.push({ songTitle: song.song || song.title || formatKey(song._key || ''), artistName: song.artist || '', prompt, correct, choices: shuffle([correct, ...wrongs]) });
+    }
+  }
+  return qs;
+}
+
+function buildRounds(songs, keys) {
+  const qs = [];
+  for (const key of shuffle(keys)) {
+    const song = songs[key];
+    if (!song || getLines(song).length < 4) continue;
+    song._key = key;
+    const songQs = buildRoundsFromSong(song);
+    if (songQs.length > 0) qs.push(songQs[Math.floor(Math.random() * songQs.length)]);
+  }
+  return qs;
+}
+
+function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+function drawQR(code) {
+  const el = document.getElementById('qr-code');
+  el.innerHTML = '';
+  const joinUrl = window.location.href.split('?')[0] + '?join=' + code;
+  new QRCode(el, { text: joinUrl, width: 100, height: 100, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+}
+
+function attachRoomListener(code) {
+  if (roomUnsubscribe) roomUnsubscribe();
+  roomUnsubscribe = onValue(ref(db, 'rooms/' + code), snap => {
+    if (!snap.exists()) return;
+    const data = snap.val();
+    const players = data.players || {};
+    const arr = Object.values(players);
+    document.getElementById('player-count').textContent = arr.length;
+    const chipList = document.getElementById('players-chip-list');
+    chipList.innerHTML = arr.length === 0
+      ? '<span class="chip-empty">Waiting for players…</span>'
+      : arr.map(p => `<div class="chip">👤 ${esc(p.name)} <span class="chip-score">${p.score||0}pt</span></div>`).join('');
+    document.getElementById('btn-start-game').disabled = arr.length === 0;
+    if (data.status === 'question') renderHostQuestion(data.currentQuestion, data, players);
+    if (data.status === 'revealed') renderHostReveal(data);
+    if (data.status === 'finished') renderFinalScores(players, 'host');
+  });
+}
+
+document.getElementById('btn-start-game').addEventListener('click', async () => {
+  await update(ref(db, 'rooms/' + currentRoomCode), { status: 'question', currentQuestion: 0 });
+  currentQIdx = 0; show('screen-host-question');
+});
+document.getElementById('btn-end-lobby').addEventListener('click', async () => {
+  if (currentRoomCode) await remove(ref(db, 'rooms/' + currentRoomCode));
+  show('screen-landing');
+});
+
+function renderHostQuestion(idx, data, players) {
+  show('screen-host-question'); currentQIdx = idx;
+  const q = questions[idx];
+  document.getElementById('hq-num').textContent      = 'Round ' + (idx+1);
+  document.getElementById('hq-total').textContent    = questions.length;
+  document.getElementById('hq-song').textContent     = '🎵 ' + (q.songTitle || '') + (q.artistName ? ' · ' + q.artistName : '');
+  document.getElementById('hq-prompt').textContent   = q.prompt;
+  document.getElementById('hq-correct').textContent  = q.correct;
+  document.getElementById('hq-progress').style.width = ((idx+1)/questions.length*100) + '%';
+  document.getElementById('hq-reveal-section').style.display = 'none';
+  document.getElementById('btn-reveal').disabled = false;
+  document.getElementById('btn-next').disabled   = true;
+  document.getElementById('hq-answered').textContent = '0';
+  document.getElementById('hq-total-players').textContent = Object.keys(players).length;
+  if (answersUnsubscribe) answersUnsubscribe();
+  answersUnsubscribe = onValue(ref(db, `rooms/${currentRoomCode}/answers/${idx}`), snap => {
+    document.getElementById('hq-answered').textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+  });
+}
+
+function renderHostReveal(data) {
+  const idx = data.currentQuestion;
+  const q = questions[idx];
+  const answers = data.answers?.[idx] || {};
+  const letters = ['A','B','C','D'];
+  document.getElementById('hq-reveal-section').style.display = 'block';
+  document.getElementById('btn-reveal').disabled = true;
+  document.getElementById('btn-next').disabled   = false;
+  document.getElementById('hq-choices').innerHTML = q.choices.map((c, i) => {
+    const isCorrect = c === q.correct;
+    const votes = Object.values(answers).filter(a => a.choice === c).length;
+    return `<div class="choice-btn${isCorrect?' correct':''}" style="cursor:default">
+      <span class="choice-ltr">${letters[i]}</span>
+      <span style="flex:1">${esc(c)}</span>
+      <span class="vote-count">${votes} vote${votes!==1?'s':''}</span>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('btn-reveal').addEventListener('click', async () => {
+  const snap = await get(ref(db, 'rooms/' + currentRoomCode));
+  const data = snap.val();
+  const answers = data.answers?.[currentQIdx] || {};
+  const players = data.players || {};
+  const correct = questions[currentQIdx].correct;
+  const updates = { status: 'revealed', currentQuestion: currentQIdx };
+  for (const [pid, ans] of Object.entries(answers)) {
+    if (ans.choice === correct && players[pid])
+      updates[`players/${pid}/score`] = (players[pid].score || 0) + 10;
+  }
+  await update(ref(db, 'rooms/' + currentRoomCode), updates);
+});
+
+document.getElementById('btn-next').addEventListener('click', async () => {
+  const next = currentQIdx + 1;
+  if (next >= questions.length) {
+    await update(ref(db, 'rooms/' + currentRoomCode), { status: 'finished' });
+  } else {
+    currentQIdx = next;
+    await update(ref(db, 'rooms/' + currentRoomCode), { status: 'question', currentQuestion: next });
+  }
+});
+document.getElementById('btn-end-question').addEventListener('click', async () => {
+  if (currentRoomCode) await remove(ref(db, 'rooms/' + currentRoomCode));
+  show('screen-landing');
+});
+
+function renderFinalScores(players, who) {
+  const sorted = Object.values(players).sort((a,b) => (b.score||0)-(a.score||0));
+  const html = sorted.map((p,i) =>
+    `<div class="score-row">
+      <div class="score-rank${i===0?' gold':''}">${i===0?'🏆':i+1}</div>
+      <div class="score-name">${esc(p.name)}${who==='player'&&p.id===myPlayerId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>
+      <div class="score-pts">${p.score||0} pts</div>
+    </div>`
+  ).join('');
+  if (who === 'host') {
+    document.getElementById('host-final-scoreboard').innerHTML = html;
+    show('screen-host-final');
+  } else {
+    const me = players[myPlayerId];
+    document.getElementById('player-final-msg').textContent = `You scored ${me?me.score:0} points!`;
+    document.getElementById('player-final-scoreboard').innerHTML = html;
+    show('screen-player-final');
+  }
+}
+
+document.getElementById('btn-play-again').addEventListener('click', () => show('screen-host-setup'));
+document.getElementById('btn-final-home').addEventListener('click', () => show('screen-landing'));
+document.getElementById('btn-player-home').addEventListener('click', () => show('screen-landing'));
+
+// ── PLAYER JOIN ──
+document.getElementById('join-code').addEventListener('input', function() { this.value = this.value.toUpperCase(); });
+document.getElementById('btn-join-room').addEventListener('click', joinRoom);
+
+async function joinRoom() {
+  const code     = document.getElementById('join-code').value.trim().toUpperCase();
+  const nickname = document.getElementById('join-nickname').value.trim();
+  const errEl    = document.getElementById('join-error');
+  errEl.style.display = 'none';
+  if (code.length !== 4) { errEl.textContent = 'Enter the 4-letter room code.'; errEl.style.display='block'; return; }
+  if (!nickname)          { errEl.textContent = 'Enter a nickname.'; errEl.style.display='block'; return; }
+  let snap;
+  try { snap = await get(ref(db, 'rooms/' + code)); }
+  catch(e) { errEl.textContent = 'Error: ' + e.message; errEl.style.display='block'; return; }
+  if (!snap.exists()) { errEl.textContent = '❌ Room not found — check the code.'; errEl.style.display='block'; return; }
+  const data = snap.val();
+  if (data.status !== 'lobby') { errEl.textContent = '⚠️ That game has already started.'; errEl.style.display='block'; return; }
+  const pRef = push(ref(db, 'rooms/' + code + '/players'));
+  myPlayerId = pRef.key; myPlayerRoomCode = code; myScore = 0; playerCurrentQ = -1;
+  try { await set(pRef, { name: nickname, score: 0, id: myPlayerId }); }
+  catch(e) { errEl.textContent = 'Could not join: ' + e.message; errEl.style.display='block'; return; }
+  questions = data.questions || [];
+  document.getElementById('player-welcome-msg').textContent = `Hey ${nickname}! Room: ${code}`;
+  show('screen-player-waiting');
+  listenAsPlayer(code);
+}
+
+function listenAsPlayer(code) {
+  onValue(ref(db, 'rooms/' + code), snap => {
+    if (!snap.exists()) { alert('The host ended the game.'); show('screen-landing'); return; }
+    const data = snap.val();
+    const players = data.players || {};
+    const arr = Object.values(players);
+    const lobbyChips = document.getElementById('player-lobby-chips');
+    if (lobbyChips) lobbyChips.innerHTML = arr.map(p => `<div class="chip">👤 ${esc(p.name)}</div>`).join('');
+    if (data.questions) questions = data.questions;
+    if (data.status === 'question' && data.currentQuestion !== playerCurrentQ) {
+      playerCurrentQ = data.currentQuestion;
+      renderPlayerQuestion(data.currentQuestion);
+    }
+    if (data.status === 'revealed') renderPlayerReveal(data);
+    if (data.status === 'finished') renderFinalScores(players, 'player');
+  });
+}
+
+let playerAnswered = false;
+
+function renderPlayerQuestion(idx) {
+  playerAnswered = false;
+  const q = questions[idx];
+  const letters = ['A','B','C','D'];
+  document.getElementById('pq-num').textContent    = 'Round ' + (idx+1);
+  document.getElementById('pq-song').textContent   = '🎵 ' + (q.songTitle || '') + (q.artistName ? ' · ' + q.artistName : '');
+  document.getElementById('pq-prompt').textContent = q.prompt;
+  document.getElementById('pq-status').style.display = 'none';
+  document.getElementById('pq-score').textContent  = 'Your score: ' + myScore + ' pts';
+  const grid = document.getElementById('pq-choices');
+  grid.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="choice-ltr">${letters[i]}</span><span>${esc(c)}</span>`;
+    btn.addEventListener('click', () => submitAnswer(c, idx));
+    grid.appendChild(btn);
+  });
+  show('screen-player-question');
+}
+
+async function submitAnswer(choice, qIdx) {
+  if (playerAnswered) return;
+  playerAnswered = true;
+  document.querySelectorAll('#pq-choices .choice-btn').forEach(b => {
+    b.disabled = true;
+    const txt = b.querySelector('span:last-child').textContent;
+    if (txt === choice) b.classList.add('selected');
+  });
+  try { await set(ref(db, `rooms/${myPlayerRoomCode}/answers/${qIdx}/${myPlayerId}`), { choice, time: Date.now() }); } catch(_) {}
+  const s = document.getElementById('pq-status');
+  s.className = 'status wait'; s.textContent = '✓ Locked in! Waiting for host to reveal…'; s.style.display='block';
+}
+
+function renderPlayerReveal(data) {
+  const idx = data.currentQuestion;
+  const q = questions[idx];
+  const myAnswer = data.answers?.[idx]?.[myPlayerId];
+  document.querySelectorAll('#pq-choices .choice-btn').forEach((b, i) => {
+    b.disabled = true;
+    const c = q.choices[i];
+    if (c === q.correct) b.classList.add('correct');
+    else if (myAnswer && c === myAnswer.choice) b.classList.add('wrong');
+  });
+  const me = data.players?.[myPlayerId];
+  if (me) myScore = me.score || 0;
+  const s = document.getElementById('pq-status');
+  s.style.display = 'block';
+  if (myAnswer && myAnswer.choice === q.correct) {
+    s.className = 'status success'; s.textContent = '🎉 Correct! +10 points';
+  } else {
+    s.className = 'status error'; s.textContent = `❌ Correct answer was: "${q.correct}"`;
+  }
+  document.getElementById('pq-score').textContent = 'Your score: ' + myScore + ' pts';
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+const urlJoin = new URLSearchParams(window.location.search).get('join');
+if (urlJoin) { document.getElementById('join-code').value = urlJoin.toUpperCase(); show('screen-player-join'); }
+</script>
+</body>
+</html>
